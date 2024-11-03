@@ -1,0 +1,26 @@
+### Create a new user
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "username": "caster1",
+    "firstName": "John",
+    "lastName": "NotGoodAtCasting",
+    "email": "john@ngac.com",
+    "password": "securepassword123"
+}
+
+### Variables for different environments
+@baseUrl = http://localhost:3000
+
+### Create user using variable
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+    "username": "anotheruser",
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "email": "jane@example.com",
+    "password": "password456"
+}

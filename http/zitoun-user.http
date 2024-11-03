@@ -4,10 +4,22 @@ Content-Type: application/json
 
 {
     "username": "caster1",
-    "firstName": "John",
-    "lastName": "NotGoodAtCasting",
-    "email": "john@ngac.com",
-    "password": "securepassword123"
+    "profile": {
+        "givenName": "John",
+        "familyName": "NotGoodAtCasting",
+        "nickName": "John",
+        "displayName": "John NotGoodAtCasting",
+        "preferredLanguage": "en",
+        "gender": "GENDER_MALE"
+    },
+    "email": {
+        "email": "john@ngac.com",
+        "isVerified": true
+    },
+    "password": {
+        "password": "Secr3tP4ssw0rd!",
+        "changeRequired": false
+    }
 }
 
 ### Variables for different environments

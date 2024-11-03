@@ -1,10 +1,12 @@
 import { Elysia, t } from 'elysia';
 import { swagger } from '@elysiajs/swagger';
+import { opentelemetry } from '@elysiajs/opentelemetry'
 import { config } from '@/config/config';
 import { handleUserCreation } from '@/services/userService';
 import { logger } from '@/infrastructure/logger';
 
 const app = new Elysia()
+  .use(opentelemetry()) 
   .use(swagger())
   .post(
     '/users',

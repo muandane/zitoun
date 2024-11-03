@@ -8,6 +8,10 @@ To get started with this api, simply paste this command into your terminal:
 bun install
 
 bun run dev
+
+bun run build
+
+bun run compile
 ```
 
 you need to have bun installed. you can install it with [bun install](https://bun.sh/install) and also some environment variables need to be set.

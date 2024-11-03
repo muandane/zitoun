@@ -11,8 +11,7 @@
   "dependencies": {
     "@elysiajs/opentelemetry": "^1.1.7",
     "@elysiajs/swagger": "^1.1.5",
-    "elysia": "latest",
-    "node-fetch": "^3.3.2"
+    "elysia": "^1.1.24"
   },
   "devDependencies": {
     "bun-types": "latest"

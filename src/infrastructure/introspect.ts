@@ -12,7 +12,7 @@ export async function zitadelAuthMiddleware({ authHeader, store }: { authHeader:
     logger.error(`Unauthorized: Invalid Authorization header ${authHeader}`);
   }
 
-  const token = authHeader.substring(7);
+  const token = authHeader;
   try {
     const { payload } = await jwtVerify(token, JWKS, {
       issuer: config.ZITADEL_DOMAIN,

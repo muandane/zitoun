@@ -1,20 +1,21 @@
 {
-  "name": "zitoun",
-  "version": "1.0.50",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/app.ts",
-    "build": "bun build src/app.ts --target bun --outdir ./dist",
-    "compile": "bun build --compile --minify-whitespace --minify-syntax --target bun --outfile server ./src/app.ts",
-    "start": "NODE_ENV=production bun dist/app.js"
-  },
-  "dependencies": {
-    "@elysiajs/opentelemetry": "^1.1.7",
-    "@elysiajs/swagger": "^1.1.5",
-    "elysia": "^1.1.24"
-  },
-  "devDependencies": {
-    "bun-types": "latest"
-  },
-  "module": "src/index.js"
+	"name": "zitoun",
+	"version": "1.0.50",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "bun run --watch src/app.ts",
+		"build": "bun build src/app.ts --target bun --outdir ./dist",
+		"compile": "bun build --compile --minify-whitespace --minify-syntax --target bun --outfile server ./src/app.ts",
+		"start": "NODE_ENV=production bun dist/app.js"
+	},
+	"dependencies": {
+		"@elysiajs/opentelemetry": "^1.1.7",
+		"@elysiajs/swagger": "^1.1.5",
+		"elysia": "^1.1.24",
+		"jose": "^5.9.6"
+	},
+	"devDependencies": {
+		"bun-types": "latest"
+	},
+	"module": "src/index.js"
 }

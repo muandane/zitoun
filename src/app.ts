@@ -9,7 +9,6 @@ import { zitadelAuthMiddleware } from "./infrastructure/introspect";
 const app = new Elysia()
 	.use(opentelemetry())
 	.use(swagger())
-	.use(zitadelAuthMiddleware)
 	.post(
 		"/users",
 		async ({ body }) => {
@@ -25,6 +24,7 @@ const app = new Elysia()
 			}
 		},
 		{
+			onBeforeHandle: zitadelAuthMiddleware,
 			body: t.Object({
 				username: t.String({ minLength: 1, maxLength: 200 }),
 				firstName: t.Optional(t.String()),

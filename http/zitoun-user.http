@@ -1,6 +1,7 @@
 ### Create a new user
 POST http://localhost:3000/users
 Content-Type: application/json
+Authorization: Bearer {{$dotenv ZITADEL_CLIENT_ID }}
 
 {
     "username": "caster1",

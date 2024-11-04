@@ -6,10 +6,10 @@ import { createRemoteJWKSet, type JWTPayload, jwtVerify, type JWTVerifyResult } 
 const JWKS = createRemoteJWKSet(new URL(config.ZITADEL_JWKS_ENDPOINT ?? ''));
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export async function zitadelAuthMiddleware(request:any , response:any, store:any) {
-  const authHeader = request.headers.Authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return response.status(401).json({ error: 'Unauthorized: No token provided' });
+export async function zitadelAuthMiddleware({ authHeader, store }: { authHeader:any, store:any}){
+
+  if (!authHeader) {
+    logger.error(`Unauthorized: Invalid Authorization header ${authHeader}`);
   }
 
   const token = authHeader.substring(7);
@@ -26,11 +26,14 @@ export async function zitadelAuthMiddleware(request:any , response:any, store:an
     );
 
     if (!hasRequiredScopes) {
-      return response.status(403).json({ error: 'Forbidden: Insufficient scope' });
+      return logger.error('Forbidden: Insufficient scope');
     }
 
     store.user = payload;
-  } catch (error) {
-    return response.status(401).json({ error: 'Unauthorized: Invalid token' });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return logger.error(error.message);
+    }
+    return logger.error('Forbidden: Invalid JWT');
   }
 }

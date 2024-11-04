@@ -7,6 +7,24 @@ import { logger } from "@/infrastructure/logger";
 import { zitadelAuthMiddleware } from "./infrastructure/introspect";
 
 const app = new Elysia()
+	.derive(({ headers }) => {
+			const auth = headers.authorization
+
+			return {
+					bearer: auth?.startsWith('Bearer ') ? auth.slice(7) : null
+			}
+	})
+	.onBeforeHandle(async (context) => {
+		await zitadelAuthMiddleware({
+			authHeader: context.bearer,
+			store: context.store,
+		});
+	})
+	.onError(({ error, code }) => {
+		if (code === 'NOT_FOUND') return 'Not Found :('
+
+		console.error(error)
+	})
 	.use(opentelemetry())
 	.use(swagger())
 	.post(
@@ -24,7 +42,6 @@ const app = new Elysia()
 			}
 		},
 		{
-			onBeforeHandle: zitadelAuthMiddleware,
 			body: t.Object({
 				username: t.String({ minLength: 1, maxLength: 200 }),
 				firstName: t.Optional(t.String()),

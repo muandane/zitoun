@@ -4,29 +4,59 @@ import { opentelemetry } from "@elysiajs/opentelemetry";
 import { config } from "@/config/config";
 import { handleUserCreation } from "@/services/userService";
 import { logger } from "@/infrastructure/logger";
-import { zitadelAuthMiddleware } from "./infrastructure/introspect";
+import { zitadelAuthMiddleware } from "@/infrastructure/introspect";
 
 const app = new Elysia()
 	.derive(({ headers }) => {
-			const auth = headers.authorization
-
-			return {
-					bearer: auth?.startsWith('Bearer ') ? auth.slice(7) : null
-			}
+		const auth = headers.authorization;
+		return {
+			bearer: auth?.startsWith("Bearer ") ? auth.slice(7) : null,
+		};
 	})
-	.onBeforeHandle(async (context) => {
-		await zitadelAuthMiddleware({
-			authHeader: context.bearer,
-			store: context.store,
-		});
-	})
+	.macro(({ onBeforeHandle }) => ({
+		zitadelAuth(enabled: boolean) {
+			if (!enabled) return;
+			onBeforeHandle(async (ctx) => {
+				await zitadelAuthMiddleware({
+					authHeader: ctx.bearer,
+					store: ctx.store,
+				});
+			});
+		},
+	}))
 	.onError(({ error, code }) => {
-		if (code === 'NOT_FOUND') return 'Not Found :('
-
-		console.error(error)
+		if (code === "NOT_FOUND") return "Not Found :(";
+		console.error(error);
 	})
 	.use(opentelemetry())
 	.use(swagger())
+	.model({
+		createUser: t.Object({
+			username: t.String({ minLength: 1, maxLength: 200 }),
+			firstName: t.Optional(t.String()),
+			lastName: t.Optional(t.String()),
+			email: t.Object({
+				email: t.String({ format: "email" }),
+				isVerified: t.Boolean(),
+			}),
+			password: t.Object({
+				password: t.String({ minLength: 8 }),
+				changeRequired: t.Boolean(),
+			}),
+			profile: t.Object({
+				givenName: t.String(),
+				familyName: t.String(),
+				nickName: t.Optional(t.String()),
+				displayName: t.String(),
+				preferredLanguage: t.String(),
+				gender: t.Enum({
+					GENDER_MALE: "GENDER_MALE",
+					GENDER_FEMALE: "GENDER_FEMALE",
+					GENDER_OTHER: "GENDER_OTHER",
+				}),
+			}),
+		}),
+	})
 	.post(
 		"/users",
 		async ({ body }) => {
@@ -42,31 +72,8 @@ const app = new Elysia()
 			}
 		},
 		{
-			body: t.Object({
-				username: t.String({ minLength: 1, maxLength: 200 }),
-				firstName: t.Optional(t.String()),
-				lastName: t.Optional(t.String()),
-				email: t.Object({
-					email: t.String({ format: "email" }),
-					isVerified: t.Boolean(),
-				}),
-				password: t.Object({
-					password: t.String({ minLength: 8 }),
-					changeRequired: t.Boolean(),
-				}),
-				profile: t.Object({
-					givenName: t.String(),
-					familyName: t.String(),
-					nickName: t.Optional(t.String()),
-					displayName: t.String(),
-					preferredLanguage: t.String(),
-					gender: t.Enum({
-						GENDER_MALE: "GENDER_MALE",
-						GENDER_FEMALE: "GENDER_FEMALE",
-						GENDER_OTHER: "GENDER_OTHER",
-					}),
-				}),
-			}),
+			body: 'createUser',
+			zitadelAuth: true,
 			detail: {
 				tags: ["Users"],
 				description: "Create a new user in Zitadel",
@@ -79,7 +86,6 @@ const app = new Elysia()
 	.listen(config.PORT);
 
 // console.log(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`);
-
 logger.info("Server initialized 🦊", {
 	host: app.server?.hostname,
 	port: config.PORT,

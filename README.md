@@ -24,7 +24,7 @@ PORT=3000
 
 ## TODO
 
-- [ ] Fix compatibility with node
+- [ ] Fix compatibility with node (might not get impllmented due to compile is awesome)
 
 This project when built can only be run with bun to use it with node you need add some plugins to adapt elysia for node like in this error:
 

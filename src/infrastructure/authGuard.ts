@@ -1,65 +1,64 @@
 // zitadelAuthPlugin.ts
-import { Elysia, t } from 'elysia';
-import { createRemoteJWKSet, jwtVerify, JWTPayload } from 'jose';
+import { type Elysia, t } from "elysia";
+import { createRemoteJWKSet, jwtVerify, type JWTPayload } from "jose";
 
 interface AuthenticatedContext {
-  user: JWTPayload & {
-    scope?: string;
-    email?: string;
-    [key: string]: unknown;
-  };
+	user: JWTPayload & {
+		scope?: string;
+		email?: string;
+		[key: string]: unknown;
+	};
 }
 
 export const zitadelAuthPlugin = (options: {
-  requiredScopes?: string[];
-  zitadelDomain: string;
-  audience: string;
+	requiredScopes?: string[];
+	zitadelDomain: string;
+	audience: string;
 }) => {
-  const { requiredScopes = [], zitadelDomain, audience } = options;
+	const { requiredScopes = [], zitadelDomain, audience } = options;
 
-  return (app: Elysia) => {
-    app.decorate('user', null); // Decorate context with 'user' property
+	return (app: Elysia) => {
+		app.decorate("user", null); // Decorate context with 'user' property
 
-    app.guard(async ({ request, set }) => {
-      const authHeader = request.headers.authorization;
+		app.guard(async ({ request, set }) => {
+			const authHeader = request.headers.authorization;
 
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        throw new Error('Unauthorized: No token provided');
-      }
+			if (!authHeader || !authHeader.startsWith("Bearer ")) {
+				throw new Error("Unauthorized: No token provided");
+			}
 
-      const token = authHeader.substring(7);
+			const token = authHeader.substring(7);
 
-      try {
-        const JWKS_URI = `${zitadelDomain}/oauth/v2/keys`;
-        const ISSUER = zitadelDomain;
+			try {
+				const JWKS_URI = `${zitadelDomain}/oauth/v2/keys`;
+				const ISSUER = zitadelDomain;
 
-        // Create a Remote JWK Set (caches keys and handles rotation)
-        const JWKS = createRemoteJWKSet(new URL(JWKS_URI));
+				// Create a Remote JWK Set (caches keys and handles rotation)
+				const JWKS = createRemoteJWKSet(new URL(JWKS_URI));
 
-        // Verify the JWT token
-        const { payload } = await jwtVerify(token, JWKS, {
-          issuer: ISSUER,
-          audience,
-        });
+				// Verify the JWT token
+				const { payload } = await jwtVerify(token, JWKS, {
+					issuer: ISSUER,
+					audience,
+				});
 
-        // Optional: Enforce required scopes
-        const tokenScopes = payload.scope?.split(' ') || [];
+				// Optional: Enforce required scopes
+				const tokenScopes = (payload.scope as string)?.split(" ") || [];
 
-        const hasRequiredScopes = requiredScopes.every((scope) =>
-          tokenScopes.includes(scope)
-        );
+				const hasRequiredScopes = requiredScopes.every((scope) =>
+					tokenScopes.includes(scope),
+				);
 
-        if (!hasRequiredScopes) {
-          throw new Error('Forbidden: Insufficient scope');
-        }
+				if (!hasRequiredScopes) {
+					throw new Error("Forbidden: Insufficient scope");
+				}
 
-        // Attach the user to the context
-        set('user', payload as AuthenticatedContext['user']);
-      } catch (error) {
-        console.error('Token verification failed:', error);
-        throw new Error('Unauthorized: Invalid token');
-      }
-    });
-  };
+				// Attach the user to the context
+				set("user", payload as AuthenticatedContext["user"]);
+			} catch (error) {
+				console.error("Token verification failed:", error);
+				throw new Error("Unauthorized: Invalid token");
+			}
+		});
+	};
 };
-

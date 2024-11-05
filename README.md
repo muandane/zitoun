@@ -18,6 +18,7 @@ you need to have bun installed. you can install it with [bun install](https://bu
 
 ```sh
 ZITADEL_DOMAIN="<ZITADEL_URL>"
+ZITADEL_JWKS_URI="<ZITADEL_JWKS_URI>"
 ZITADEL_PAT="<MACHINE_USER_ZITADEL_PAT>"
 PORT=3000
 ```

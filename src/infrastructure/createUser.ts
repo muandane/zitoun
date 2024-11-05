@@ -21,7 +21,7 @@ export async function createZitadelUser(userData: CreateUserRequest) {
 		});
 
 		const responseData = await response.json();
-
+		// logger.debug(responseData)
 		if (!response.ok) {
 			const zitadelError = responseData as ZitadelError;
 			logger.error("Failed to create user in Zitadel", zitadelError, {
@@ -31,7 +31,7 @@ export async function createZitadelUser(userData: CreateUserRequest) {
 		}
 
 		logger.info("Successfully created user in Zitadel", {
-			userId: responseData.id,
+			userId: responseData.userId,
 		});
 		return responseData;
 	} catch (error) {

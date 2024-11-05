@@ -4,14 +4,13 @@ import { opentelemetry } from "@elysiajs/opentelemetry";
 import { config } from "@/config/config";
 import { handleUserCreation } from "@/services/userService";
 import { logger } from "@/infrastructure/logger";
-import jwt from "@elysiajs/jwt";
-import { createRemoteJWKSet, type JWTPayload, jwtVerify } from "jose";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
 const app = new Elysia()
 	.derive(({ headers }) => {
 		const auth = headers.authorization;
 		return {
-			bearer: auth?.startsWith("Bearer ") ? auth.slice(7) : null,
+			bearer: auth?.startsWith("Bearer ") ? auth.slice(7) : "",
 		};
 	})
 	.onError(({ error, code }) => {
@@ -47,50 +46,22 @@ const app = new Elysia()
 			}),
 		}),
 	})
-	.use(
-		jwt({
-      naem: 'jwt',
-			secret: "xxx",
-			async verify(token: string) {
-				const JWKS = createRemoteJWKSet(
-					new URL(config.ZITADEL_JWKS_ENDPOINT ?? ""),
-				);
-				logger.info(config.ZITADEL_JWKS_ENDPOINT as string)
-
-				try {
-					const { payload } = await jwtVerify(token, JWKS, {
-						issuer: config.ZITADEL_DOMAIN,
-						audience: `urn:zitadel:iam:org:project:id:${config.ZITADEL_PROJECT_ID}:aud`,
-					});
-					return payload as JWTPayload;
-				} catch (error: unknown) {
-					if (error instanceof Error) {
-						logger.error(error.message);
-					} else {
-						logger.error("Unknown error occurred");
-					}
-					return undefined;
-				}
-			},
-		}),
-	)
 	.post(
 		"/users",
-		async ({ jwt, bearer, body }) => {
-      const checkJWT = await jwt.verify(bearer as string);
-			logger.info("JWT is ", { checkJWT });
-			if (!checkJWT) {
-				return logger.error(`JWT is not valid ${bearer}`);
+		async ({ bearer, body }) => {
+			if (!bearer) {
+				logger.info("Unauthorized: No token provided");
+				return;
 			}
+
 			try {
+				const JWKS = createRemoteJWKSet(new URL(config.ZITADEL_JWKS_ENDPOINT ?? ""));
+				await jwtVerify(bearer, JWKS, { issuer: config.ZITADEL_DOMAIN });
 				const user = await handleUserCreation(body);
 				return { status: "success", data: user };
-			} catch (error) {
-				return {
-					status: "error",
-					message:
-						error instanceof Error ? error.message : "Unknown error occurred",
-				};
+			} catch (error: unknown) {
+				logger.error(`Unauthorized: ${error instanceof Error ? error.message : "Unknown error occurred"}`);
+				return { status: "error", message: error instanceof Error ? error.message : "Unknown error occurred" };
 			}
 		},
 		{

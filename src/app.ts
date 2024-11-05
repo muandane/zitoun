@@ -4,8 +4,6 @@ import { opentelemetry } from "@elysiajs/opentelemetry";
 import { config } from "@/config/config";
 import { handleUserCreation } from "@/services/userService";
 import { logger } from "@/infrastructure/logger";
-//import { zitadelAuthMiddleware } from "@/infrastructure/introspect";
-import { authGuard } from "./infrastructure/authGuard";
 import jwt from "@elysiajs/jwt";
 import { createRemoteJWKSet, JWTPayload, jwtVerify } from "jose";
 
@@ -75,31 +73,32 @@ const app = new Elysia()
         logger.error(error);
         return undefined;
       }
-    }},)).post(
-      "/users",
-      async ({ jwt, body }) => {
-        if (!jwt) { throw new Error("Jwt error"); };
-        try {
-          const user = await handleUserCreation(body);
-          return { status: "success", data: user };
-        } catch (error) {
-          return {
-            status: "error",
-            message:
-              error instanceof Error ? error.message : "Unknown error occurred",
-          };
-        }
+    }
+  },)).post(
+    "/users",
+    async ({ jwt, body }) => {
+      if (!jwt) { throw new Error("Jwt error"); };
+      try {
+        const user = await handleUserCreation(body);
+        return { status: "success", data: user };
+      } catch (error) {
+        return {
+          status: "error",
+          message:
+            error instanceof Error ? error.message : "Unknown error occurred",
+        };
+      }
+    },
+    {
+      body: 'createUser',
+      zitadelAuth: true,
+      detail: {
+        tags: ["Users"],
+
+        description: "Create a new user in Zitadel",
       },
-      {
-        body: 'createUser',
-        zitadelAuth: true,
-        detail: {
-          tags: ["Users"],
-          
-          description: "Create a new user in Zitadel",
-        },
-      },
-    )
+    },
+  )
   .onStart(() => {
     logger.info("Server starting", { port: config.PORT });
   })

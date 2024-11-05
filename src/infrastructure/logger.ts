@@ -8,6 +8,15 @@ export const logger = {
 		};
 		console.log(JSON.stringify(logEntry));
 	},
+	debug: (message: string, metadata?: object) => {
+		const logEntry = {
+			level: "debug",
+			timestamp: new Date().toISOString(),
+			message,
+			...metadata,
+		};
+		console.debug(JSON.stringify(logEntry));
+	},
 	error: (message: string, errorObject?: unknown, metadata?: object) => {
 		const error =
 			errorObject instanceof Error

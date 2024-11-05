@@ -55,11 +55,12 @@ const app = new Elysia()
 				const JWKS = createRemoteJWKSet(
 					new URL(config.ZITADEL_JWKS_ENDPOINT ?? ""),
 				);
+				logger.info(config.ZITADEL_JWKS_ENDPOINT as string)
 
 				try {
 					const { payload } = await jwtVerify(token, JWKS, {
 						issuer: config.ZITADEL_DOMAIN,
-						audience: config.ZITADEL_CLIENT_ID,
+						audience: `urn:zitadel:iam:org:project:id:${config.ZITADEL_PROJECT_ID}:aud`,
 					});
 					return payload as JWTPayload;
 				} catch (error: unknown) {
@@ -77,6 +78,7 @@ const app = new Elysia()
 		"/users",
 		async ({ jwt, bearer, body }) => {
       const checkJWT = await jwt.verify(bearer as string);
+			logger.info("JWT is ", { checkJWT });
 			if (!checkJWT) {
 				return logger.error(`JWT is not valid ${bearer}`);
 			}

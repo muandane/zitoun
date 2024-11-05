@@ -1,4 +1,5 @@
 // zitadelAuthPlugin.ts
+// not used but let's keep it for now
 import { Elysia, t } from 'elysia';
 import { createRemoteJWKSet, jwtVerify, JWTPayload } from 'jose';
 

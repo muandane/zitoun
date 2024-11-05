@@ -4,7 +4,6 @@ import { opentelemetry } from "@elysiajs/opentelemetry";
 import { config } from "@/config/config";
 import { handleUserCreation } from "@/services/userService";
 import { logger } from "@/infrastructure/logger";
-import { createRemoteJWKSet, jwtVerify } from "jose";
 
 const app = new Elysia()
 	.derive(({ headers }) => {
@@ -55,13 +54,14 @@ const app = new Elysia()
 			}
 
 			try {
-				const JWKS = createRemoteJWKSet(new URL(config.ZITADEL_JWKS_ENDPOINT ?? ""));
-				await jwtVerify(bearer, JWKS, { issuer: config.ZITADEL_DOMAIN });
-				const user = await handleUserCreation(body);
+				const user = await handleUserCreation(body, bearer);
 				return { status: "success", data: user };
 			} catch (error: unknown) {
-				logger.error(`Unauthorized: ${error instanceof Error ? error.message : "Unknown error occurred"}`);
-				return { status: "error", message: error instanceof Error ? error.message : "Unknown error occurred" };
+				return {
+					status: "error",
+					message:
+						error instanceof Error ? error.message : "Unknown error occurred",
+				};
 			}
 		},
 		{

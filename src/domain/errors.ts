@@ -1,7 +1,7 @@
 import { type ZitadelError, errorMessages } from "@/domain/models";
 
 export function formatZitadelError(error: ZitadelError): string {
-	const fieldMatch = error.message.match(/invalid AddHumanUserRequest\.(\w+):/);
+	const fieldMatch = /invalid AddHumanUserRequest\.(\w+):/.exec(error.message);
 	if (fieldMatch?.[1]) {
 		const field = fieldMatch[1].toLowerCase();
 		if (error.code === 3 && field in errorMessages[3]) {

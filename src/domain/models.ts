@@ -20,6 +20,9 @@ export interface CreateUserRequest {
 	};
 }
 
+export interface DeleteUserRequest {
+	userId: string;
+}
 export interface ZitadelError {
 	code: number;
 	message: string;
@@ -28,9 +31,9 @@ export interface ZitadelError {
 
 export const errorMessages = {
 	3: {
-		username: "Username must be between 1 and 200 characters",
-		email: "Email must be a valid email address",
-		password: "Password must meet the minimum requirements",
+		usernameError: "Username must be between 1 and 200 characters",
+		emailError: "Email must be a valid email address",
+		passwordError: "Password must meet the minimum requirements",
 	},
 } as const;
 

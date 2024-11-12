@@ -1,5 +1,5 @@
 ### Create a new user
-POST http://localhost:3000/users
+POST http://localhost:3000/v1/users
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{$dotenv ID_TOKEN }}
@@ -23,6 +23,15 @@ Authorization: Bearer {{$dotenv ID_TOKEN }}
         "changeRequired": false
     }
 }
+### Delete user
+DELETE http://localhost:3000/v1/users
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{$dotenv ID_TOKEN }}
+
+{
+    "userId": "293502919024574467"
+}
 
 ### Variables for different environments
 @baseUrl = http://localhost:3000
@@ -32,7 +41,7 @@ POST {{baseUrl}}/users
 Content-Type: application/json
 
 {
-    "username": "anotheruser",
+    "username": "293502919024574467",
     "firstName": "Jane",
     "lastName": "Smith",
     "email": "jane@example.com",

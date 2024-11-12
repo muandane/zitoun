@@ -5,6 +5,7 @@ import { formatZitadelError } from "@/domain/errors";
 
 export async function deleteZitadelUser(userData: DeleteUserRequest) {
 	const userId = userData.userId;
+
   logger.info("Deleting user in Zitadel", { userId });
 
   const url = `${config.ZITADEL_DOMAIN}/v2/users/${userId}`;

@@ -39,7 +39,7 @@ export const deleteUser = new Elysia({ prefix: config.API_PREFIX })
 			body: "deleteUser",
 			detail: {
 				tags: ["Users"],
-				description: "Create a new user in Zitadel",
+				description: "Delete user in Zitadel",
 			},
 		},
 	);

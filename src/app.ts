@@ -5,6 +5,7 @@ import { config } from "@/config/config";
 import { logger } from "@/infrastructure/logger";
 import { createUser } from "@/infrastructure/api/routes/createUser.routes";
 import { healthService } from "@/infrastructure/api/routes/health.routes";
+import { deleteUser } from "./infrastructure/api/routes/deleteUser.routes";
 
 const app = new Elysia()
 	.use(opentelemetry())
@@ -14,6 +15,7 @@ const app = new Elysia()
 		console.error(error);
 	})
 	.use(createUser)
+	.use(deleteUser)
 	.use(healthService)
 	.onStart(() => {
 		logger.info("Server starting", { port: config.PORT });
